@@ -1,10 +1,12 @@
+import { useLocalSearchParams } from 'expo-router';
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-export default function NewChatScreen() {
+export default function ChatScreen() {
+    const { id } = useLocalSearchParams();
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>New Chat</Text>
-            <Text>Start a new conversation here</Text>
+            <Text style={styles.title}>Chat {id}</Text>
+            <Text style={styles.subtitle}>Chat content will appear here</Text>
         </View>
     );
 }
@@ -14,11 +16,16 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#151517',
+        padding: 20,
     },
     title: {
         color: 'white',
         fontSize: 24,
         fontWeight: 'bold',
-        marginBottom: 20,
+        marginBottom: 10,
+    },
+    subtitle: {
+        color: '#ADB2B8',
+        fontSize: 16,
     },
 });

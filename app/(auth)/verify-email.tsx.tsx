@@ -39,7 +39,7 @@ const VerifyEmailScreen = ({ email, setPendingVerification }: VerifyEmailScreenP
             });
             if (signUpAttempt.status === 'complete') {
                 await setActive({ session: signUpAttempt.createdSessionId });
-                router.replace('/(drawer)');
+                router.replace('/(drawer)/chats/new');
             } else {
                 console.error(JSON.stringify(signUpAttempt, null, 2));
             }

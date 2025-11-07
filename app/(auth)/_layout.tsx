@@ -4,7 +4,7 @@ import React from 'react';
 export default function AuthRoutesLayout() {
     const { isSignedIn } = useAuth();
     if (isSignedIn) {
-        return <Redirect href={'/(drawer)'} />
+        return <Redirect href={'/(drawer)/chats/new'} />
     }
     return <Stack screenOptions={{ headerShown: false }} />
 }

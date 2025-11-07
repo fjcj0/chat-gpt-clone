@@ -32,7 +32,7 @@ export default function SignInScreen() {
             });
             if (signInAttempt.status === 'complete') {
                 await setActive({ session: signInAttempt.createdSessionId });
-                router.replace('/(drawer)');
+                router.replace('/(drawer)/chats/new');
             } else {
                 console.error(JSON.stringify(signInAttempt, null, 2));
             }
