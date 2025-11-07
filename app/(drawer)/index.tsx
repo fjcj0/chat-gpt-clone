@@ -1,24 +1,21 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, StyleSheet, View } from 'react-native';
 export default function NewChatScreen() {
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>New Chat</Text>
-            <Text>Start a new conversation here</Text>
-        </View>
+        <KeyboardAvoidingView style={styles.keyboardAvoidingView} behavior="padding">
+            <View style={styles.container}>
+
+            </View>
+        </KeyboardAvoidingView>
     );
 }
 const styles = StyleSheet.create({
+    keyboardAvoidingView: {
+        flex: 1,
+    },
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+        justifyContent: 'space-between',
         backgroundColor: '#151517',
-    },
-    title: {
-        color: 'white',
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 20,
     },
 });
