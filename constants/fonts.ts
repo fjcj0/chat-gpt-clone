@@ -1,0 +1,17 @@
+export const FONT_NAMES = {
+    CAPRASIMO: 'Caprasimo-Regular',
+    COMIC_NEUE: 'ComicNeue-Regular',
+    HACHI_MARU_POP: 'HachiMaruPop-Regular',
+    JOSEFIN_SANS: 'JosefinSans-Regular',
+    JOSEFIN_SLAB: 'JosefinSlab-Regular',
+    KALAM: 'Kalam-Regular',
+    KANCHENJUNGA: 'Kanchenjunga-Regular',
+    LILITA_ONE: 'LilitaOne-Regular',
+    MERIENDA: 'Merienda-Regular',
+    MOCHIY_POP: 'MochiyPopPOne-Regular',
+    NUNITO: 'Nunito-Regular',
+    PACIFICO: 'Pacifico-Regular',
+    PARKINSANS: 'Parkinsans-Regular',
+    PATUA_ONE: 'PatuaOne-Regular',
+    POPPINS: 'Poppins-Regular',
+};
