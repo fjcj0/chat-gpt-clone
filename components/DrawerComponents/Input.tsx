@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         maxHeight: 120,
         paddingHorizontal: 8,
-        paddingVertical: 8,
+        paddingVertical: 10,
         textAlignVertical: 'center',
     },
     textInputFocused: {
@@ -97,6 +97,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginLeft: 8,
+        marginBottom: 3
     },
     sendButtonActive: {
         backgroundColor: PRIMARY_COLOR,
