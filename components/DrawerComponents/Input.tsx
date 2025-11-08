@@ -1,4 +1,5 @@
 import { PRIMARY_COLOR } from '@/constants/colors';
+import { useChatContext } from '@/context/ChatContext';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import {
@@ -7,18 +8,22 @@ import {
     TouchableOpacity,
     View
 } from 'react-native';
+
 const Input = () => {
-    const [message, setMessage] = useState('');
+    const { setInputMessage, inputMessage } = useChatContext();
     const [isFocused, setIsFocused] = useState(false);
+
     const handleSend = () => {
-        if (message.trim()) {
-            console.log('Sending message:', message);
-            setMessage('');
+        if (inputMessage) {
+            console.log('Sending message:', inputMessage);
+            setInputMessage('');
         }
     };
+
     const handleAttachment = () => {
         console.log('Attachment pressed');
     };
+
     return (
         <View style={{ paddingHorizontal: 20 }}>
             <View style={styles.inputContainer}>
@@ -33,8 +38,8 @@ const Input = () => {
                         styles.textInput,
                         isFocused && styles.textInputFocused
                     ]}
-                    value={message}
-                    onChangeText={setMessage}
+                    value={inputMessage}
+                    onChangeText={setInputMessage}
                     placeholder="Message CanvaUi..."
                     placeholderTextColor="#9CA3AF"
                     multiline
@@ -45,21 +50,22 @@ const Input = () => {
                 <TouchableOpacity
                     style={[
                         styles.sendButton,
-                        message.trim() ? styles.sendButtonActive : styles.sendButtonInactive
+                        inputMessage ? styles.sendButtonActive : styles.sendButtonInactive
                     ]}
                     onPress={handleSend}
-                    disabled={!message.trim()}
+                    disabled={!inputMessage}
                 >
                     <Ionicons
                         name="send"
                         size={20}
-                        color={message.trim() ? "white" : "#9CA3AF"}
+                        color={inputMessage ? "white" : "#9CA3AF"}
                     />
                 </TouchableOpacity>
             </View>
         </View>
     );
 };
+
 const styles = StyleSheet.create({
     inputContainer: {
         flexDirection: 'row',
@@ -106,4 +112,5 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255, 255, 255, 0.1)',
     },
 });
+
 export default Input;

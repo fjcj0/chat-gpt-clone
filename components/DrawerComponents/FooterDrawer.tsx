@@ -1,7 +1,8 @@
+import { useUser } from '@clerk/clerk-expo';
 import React, { useState } from 'react';
 import { Alert, Image, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-const profilePic = require('../../assets/images/profile.jpeg');
 const FooterDrawer = () => {
+    const { user } = useUser();
     const [isMenuVisible, setIsMenuVisible] = useState(false);
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
     const [profileName, setProfileName] = useState('Omar Coding');
@@ -43,7 +44,6 @@ const FooterDrawer = () => {
                     text: 'Delete',
                     style: 'destructive',
                     onPress: () => {
-                        // Add your delete account logic here
                         console.log('Account deletion confirmed');
                     }
                 }
@@ -54,13 +54,13 @@ const FooterDrawer = () => {
         <View style={styles.footer}>
             <View style={styles.profileContainer}>
                 <View style={styles.profileInfo}>
-                    <TouchableOpacity>
+                    <View>
                         <Image
-                            source={profilePic}
+                            source={{ uri: user?.imageUrl }}
                             style={styles.profileImage}
                         />
-                    </TouchableOpacity>
-                    <Text style={styles.profileName}>{profileName}</Text>
+                    </View>
+                    <Text style={styles.profileName}>{!user?.firstName}</Text>
                 </View>
                 <TouchableOpacity style={styles.menuButton} onPress={toggleMenu}>
                     <Text style={styles.menuDots}>...</Text>
@@ -82,16 +82,14 @@ const FooterDrawer = () => {
                             style={styles.menuItem}
                             onPress={handleEditName}
                         >
-                            <Text style={styles.menuItemText}>Edit Name</Text>
+                            <Text style={styles.menuItemText}>Enter Name</Text>
                         </TouchableOpacity>
-
                         <TouchableOpacity
                             style={styles.menuItem}
                             onPress={handleLogout}
                         >
                             <Text style={styles.menuItemText}>Logout</Text>
                         </TouchableOpacity>
-
                         <TouchableOpacity
                             style={[styles.menuItem, styles.deleteItem]}
                             onPress={handleDeleteAccount}
@@ -126,7 +124,6 @@ const FooterDrawer = () => {
                             >
                                 <Text style={styles.cancelButtonText}>Cancel</Text>
                             </TouchableOpacity>
-
                             <TouchableOpacity
                                 style={[styles.modalButton, styles.saveButton]}
                                 onPress={saveNewName}

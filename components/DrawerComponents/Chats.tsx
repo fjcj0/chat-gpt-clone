@@ -1,3 +1,4 @@
+import { useChatContext } from '@/context/ChatContext';
 import { DrawerContentComponentProps, DrawerContentScrollView } from '@react-navigation/drawer';
 import { usePathname, useRouter } from 'expo-router';
 import { MessageCircle, Trash } from 'lucide-react-native';
@@ -7,12 +8,7 @@ interface ChatsProps {
     navigation: DrawerContentComponentProps['navigation'];
 }
 const Chats = ({ navigation }: ChatsProps) => {
-    const chats = [
-        { id: '1', title: 'How to learn React Native?' },
-        { id: '2', title: 'Weather forecast for today' },
-        { id: '3', title: 'Recipe for chocolate cake' },
-        { id: '4', title: 'Travel recommendations' },
-    ];
+    const { chats } = useChatContext();
     const router = useRouter();
     const pathname = usePathname();
     const isNewChatActive = pathname === '/(drawer)' || pathname === '/';
@@ -51,7 +47,7 @@ const Chats = ({ navigation }: ChatsProps) => {
                             </Text>
                         </View>
                     </TouchableOpacity>
-                    {chats.map((chat) => {
+                    {chats.map((chat: any) => {
                         const active = isChatActive(chat.id);
                         return (
                             <TouchableOpacity

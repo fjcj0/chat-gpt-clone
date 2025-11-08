@@ -8,7 +8,6 @@ import { fonts } from '../fonts';
 const logo = require('../assets/icons/logo.png');
 function ClerkLoadedWrapper({ children }: { children: React.ReactNode }) {
   const { isLoaded } = useAuth();
-
   if (!isLoaded) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', flexDirection: 'column', rowGap: 8, backgroundColor: 'black' }}>
