@@ -2,6 +2,7 @@ import { Chat, ChatContextProps, Message } from '@/global';
 import { useUser } from '@clerk/clerk-expo';
 import axios from 'axios';
 import { useContext, createContext, ReactNode, useState, useEffect, useCallback } from 'react';
+import { socket } from '../utils/socket';
 axios.defaults.withCredentials = true;
 const ChatContext = createContext<ChatContextProps | undefined>(undefined);
 export const ChatProvider = ({ children }: { children: ReactNode }) => {
@@ -13,6 +14,34 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     const [isFetchingChats, setIsFetchingChats] = useState(false);
     const [isFetchingMessages, setIsFetchingMessages] = useState(false);
     const [chat, setChat] = useState<number | null>(null);
+    useEffect(() => {
+        if (!user?.id) return;
+        socket.on('receive', (data: { chat?: Chat; userMessage: Message }) => {
+            console.log('Received user message:', data);
+            if (data.chat) {
+                setChat(data.chat.id);
+                setChats(prev => [data.chat!, ...prev]);
+                setMessages([data.userMessage]);
+            } else {
+                setMessages(prev => [...prev, data.userMessage]);
+            }
+        });
+        socket.on('aiResponse', (data: { message: Message; chatId: number; type?: string; error?: boolean }) => {
+            console.log('AI response received:', data);
+            setMessages(prev => [...prev, data.message]);
+            setIsLoading(false);
+            fetchChats();
+        });
+        socket.on('error', (error: { error: string }) => {
+            console.error('Socket error:', error);
+            setIsLoading(false);
+        });
+        return () => {
+            socket.off('receive');
+            socket.off('aiResponse');
+            socket.off('error');
+        };
+    }, [user?.id]);
     const fetchChats = async () => {
         setIsFetchingChats(true);
         try {
@@ -37,16 +66,30 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         setIsFetchingMessages(true);
         try {
             const response = await axios.get(`${process.env.EXPO_PUBLIC_SERVER_URL}/api/chat/messages/${chat_id}/${user?.id}`);
-            setMessages(response.data.messages);
+            // Make sure messages are in chronological order (oldest first)
+            const sortedMessages = response.data.messages.sort((a: Message, b: Message) =>
+                new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+            );
+            setMessages(sortedMessages);
         } catch (error) {
             console.log(error instanceof Error ? error.message : error);
         } finally {
             setIsFetchingMessages(false);
         }
     }, [user?.id]);
-    const sendMessageToAi = async (chat_id: number | null) => {
-
-    }
+    const sendMessageToAi = async (content: string, image?: string) => {
+        if (!user?.id) {
+            console.error('User must be logged in');
+            return;
+        }
+        setIsLoading(true);
+        socket.emit('sendMessageToAi', {
+            chatId: chat,
+            content: content,
+            clerkId: user.id,
+            image: image || null
+        });
+    };
     return (
         <ChatContext.Provider value={{
             chats,

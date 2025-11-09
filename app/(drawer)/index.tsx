@@ -4,17 +4,25 @@ import Welcome from '@/components/DrawerComponents/Welcome';
 import Loader from '@/components/Loader';
 import { useChatContext } from '@/context/ChatContext';
 import { useUser } from '@clerk/clerk-expo';
-import React, { useEffect } from 'react';
-import { KeyboardAvoidingView, StyleSheet, View, FlatList, Text, Image } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { KeyboardAvoidingView, StyleSheet, View, FlatList, Text, Image, ActivityIndicator } from 'react-native';
 const logoAi = require('../../assets/icons/logo.png');
 export default function ChatScreen() {
     const { user } = useUser();
-    const { chat, messages, fetchMessages, isFetchingMessages } = useChatContext();
+    const { chat, messages, fetchMessages, isFetchingMessages, isLoading } = useChatContext();
+    const flatListRef = useRef<FlatList>(null);
     useEffect(() => {
         if (chat !== null) {
             fetchMessages(chat);
         }
     }, [chat, fetchMessages]);
+    useEffect(() => {
+        if (messages.length > 0) {
+            setTimeout(() => {
+                flatListRef.current?.scrollToEnd({ animated: true });
+            }, 100);
+        }
+    }, [messages]);
     const formatTime = (timestamp: string) => {
         const date = new Date(timestamp);
         return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -56,8 +64,33 @@ export default function ChatScreen() {
             )}
         </View>
     );
+    const renderLoadingIndicator = () => (
+        <View style={styles.loadingContainer}>
+            <View style={styles.aiProfileContainer}>
+                <Image
+                    source={logoAi}
+                    style={styles.aiImage}
+                    resizeMode="contain"
+                />
+            </View>
+            <View style={styles.loadingContent}>
+                <ActivityIndicator size='large' color="#3B82F6" style={styles.loadingSpinner} />
+                <Text style={styles.loadingText}>AI is thinking...</Text>
+            </View>
+        </View>
+    );
     if (isFetchingMessages) {
-        return <Loader />;
+        return (
+            <View style={styles.fullScreenLoader}>
+                <Image
+                    source={logoAi}
+                    style={styles.fullScreenLogo}
+                    resizeMode="contain"
+                />
+                <ActivityIndicator size="large" color="#3B82F6" />
+                <Text style={styles.fullScreenLoaderText}>Loading messages...</Text>
+            </View>
+        );
     }
     return (
         <KeyboardAvoidingView style={styles.keyboardAvoidingView} behavior="padding">
@@ -68,12 +101,15 @@ export default function ChatScreen() {
                 ) : (
                     <View style={styles.messagesContainer}>
                         <FlatList
+                            ref={flatListRef}
                             data={messages}
                             renderItem={renderMessage}
                             keyExtractor={(item) => item.id?.toString() || Math.random().toString()}
                             contentContainerStyle={styles.messagesList}
                             inverted={false}
                             showsVerticalScrollIndicator={false}
+                            onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+                            ListFooterComponent={isLoading ? renderLoadingIndicator : null}
                         />
                     </View>
                 )}
@@ -97,6 +133,7 @@ const styles = StyleSheet.create({
     messagesContainer: {
         flex: 1,
         paddingHorizontal: 16,
+        paddingBottom: 100
     },
     messagesList: {
         paddingVertical: 16,
@@ -180,5 +217,46 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         backgroundColor: 'transparent',
-    }
+    },
+    loadingContainer: {
+        flexDirection: 'row',
+        alignItems: 'flex-end',
+        marginVertical: 4,
+        gap: 8,
+        justifyContent: 'flex-start',
+    },
+    loadingContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#374151',
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderRadius: 16,
+        borderBottomLeftRadius: 4,
+        maxWidth: '70%',
+    },
+    loadingSpinner: {
+        marginRight: 8,
+    },
+    loadingText: {
+        color: '#D1D5DB',
+        fontSize: 14,
+        fontStyle: 'italic',
+    },
+    fullScreenLoader: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#151517',
+    },
+    fullScreenLogo: {
+        width: 80,
+        height: 80,
+        marginBottom: 20,
+    },
+    fullScreenLoaderText: {
+        color: '#9CA3AF',
+        fontSize: 16,
+        marginTop: 16,
+    },
 });

@@ -24,7 +24,7 @@ export interface ChatContextProps {
     setIsFetchingChats: (fetching: boolean) => void;
     isFetchingMessages: boolean;
     setIsFetchingMessages: (fetching: boolean) => void;
-    sendMessageToAi: (chat_id: number | null) => Promise<void>;
+    sendMessageToAi: (content: string, image?: string) => Promise<void>;
     fetchMessages: (chat_id: number | null) => Promise<void>;
     chat: number | null;
     setChat: (chat: number | null) => void;

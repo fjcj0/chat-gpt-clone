@@ -8,28 +8,26 @@ import {
     TouchableOpacity,
     View
 } from 'react-native';
-
 const Input = () => {
-    const { setInputMessage, inputMessage } = useChatContext();
+    const { setInputMessage, inputMessage, sendMessageToAi, isLoading } = useChatContext();
     const [isFocused, setIsFocused] = useState(false);
-
     const handleSend = () => {
-        if (inputMessage) {
+        if (inputMessage.trim() && !isLoading) {
             console.log('Sending message:', inputMessage);
+            sendMessageToAi(inputMessage.trim());
             setInputMessage('');
         }
     };
-
     const handleAttachment = () => {
         console.log('Attachment pressed');
     };
-
     return (
         <View style={{ paddingHorizontal: 20 }}>
             <View style={styles.inputContainer}>
                 <TouchableOpacity
                     style={styles.attachmentButton}
                     onPress={handleAttachment}
+                    disabled={isLoading}
                 >
                     <Ionicons name="attach" size={24} color="#6B7280" />
                 </TouchableOpacity>
@@ -46,26 +44,26 @@ const Input = () => {
                     maxLength={4000}
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
+                    editable={!isLoading}
                 />
                 <TouchableOpacity
                     style={[
                         styles.sendButton,
-                        inputMessage ? styles.sendButtonActive : styles.sendButtonInactive
+                        inputMessage && !isLoading ? styles.sendButtonActive : styles.sendButtonInactive
                     ]}
                     onPress={handleSend}
-                    disabled={!inputMessage}
+                    disabled={!inputMessage || isLoading}
                 >
                     <Ionicons
-                        name="send"
+                        name={isLoading ? "hourglass" : "send"}
                         size={20}
-                        color={inputMessage ? "white" : "#9CA3AF"}
+                        color={inputMessage && !isLoading ? "white" : "#9CA3AF"}
                     />
                 </TouchableOpacity>
             </View>
         </View>
     );
 };
-
 const styles = StyleSheet.create({
     inputContainer: {
         flexDirection: 'row',
@@ -112,5 +110,4 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255, 255, 255, 0.1)',
     },
 });
-
 export default Input;

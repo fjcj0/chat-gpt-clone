@@ -13,7 +13,7 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
     return (
         <View style={styles.drawerContainer}>
             <HeaderDrawer />
-            <Chats navigation={props.navigation} />
+            <Chats />
             <FooterDrawer />
         </View>
     );
