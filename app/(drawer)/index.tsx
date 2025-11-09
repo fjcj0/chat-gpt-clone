@@ -81,15 +81,7 @@ export default function ChatScreen() {
     );
     if (isFetchingMessages) {
         return (
-            <View style={styles.fullScreenLoader}>
-                <Image
-                    source={logoAi}
-                    style={styles.fullScreenLogo}
-                    resizeMode="contain"
-                />
-                <ActivityIndicator size="large" color="#3B82F6" />
-                <Text style={styles.fullScreenLoaderText}>Loading messages...</Text>
-            </View>
+            <Loader />
         );
     }
     return (
@@ -161,9 +153,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     aiImage: {
-        width: 150,
-        height: 150,
-        borderRadius: 150,
+        width: 100,
+        height: 100,
     },
     userProfileContainer: {
         width: 32,
@@ -240,8 +231,7 @@ const styles = StyleSheet.create({
     },
     loadingText: {
         color: '#D1D5DB',
-        fontSize: 14,
-        fontStyle: 'italic',
+        fontSize: 17,
     },
     fullScreenLoader: {
         flex: 1,

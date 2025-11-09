@@ -14,10 +14,13 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     const [isFetchingChats, setIsFetchingChats] = useState(false);
     const [isFetchingMessages, setIsFetchingMessages] = useState(false);
     const [chat, setChat] = useState<number | null>(null);
+    const [isDeletingChat, setIsDeletedChat] = useState({
+        chat: null,
+        status: false,
+    });
     useEffect(() => {
         if (!user?.id) return;
         socket.on('receive', (data: { chat?: Chat; userMessage: Message }) => {
-            console.log('Received user message:', data);
             if (data.chat) {
                 setChat(data.chat.id);
                 setChats(prev => [data.chat!, ...prev]);
@@ -27,13 +30,12 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
             }
         });
         socket.on('aiResponse', (data: { message: Message; chatId: number; type?: string; error?: boolean }) => {
-            console.log('AI response received:', data);
             setMessages(prev => [...prev, data.message]);
             setIsLoading(false);
             fetchChats();
         });
         socket.on('error', (error: { error: string }) => {
-            console.error('Socket error:', error);
+            console.log('Socket error:', error);
             setIsLoading(false);
         });
         return () => {
@@ -66,7 +68,6 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         setIsFetchingMessages(true);
         try {
             const response = await axios.get(`${process.env.EXPO_PUBLIC_SERVER_URL}/api/chat/messages/${chat_id}/${user?.id}`);
-            // Make sure messages are in chronological order (oldest first)
             const sortedMessages = response.data.messages.sort((a: Message, b: Message) =>
                 new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
             );
