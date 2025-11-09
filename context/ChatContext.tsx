@@ -29,6 +29,17 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
             fetchChats();
         }
     }, [user?.id]);
+    const fetchMessages = async (chat_id: number | null) => {
+        setIsFetchingMessages(true);
+        try {
+            const response = await axios.get(`${process.env.EXPO_PUBLIC_SERVER_URL}/api/chat/messages/${chat_id}/${user?.id}`);
+            setMessages(response.data.messages);
+        } catch (error) {
+            console.log(error instanceof Error ? error.message : error);
+        } finally {
+            setIsFetchingMessages(false);
+        }
+    }
     const sendMessageToAi = async (chat_id: number | null) => {
 
     }
@@ -46,7 +57,8 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
             setIsFetchingChats,
             isFetchingMessages,
             setIsFetchingMessages,
-            sendMessageToAi
+            sendMessageToAi,
+            fetchMessages
         }}>
             {children}
         </ChatContext.Provider>
