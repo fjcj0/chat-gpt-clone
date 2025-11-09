@@ -57,9 +57,6 @@ const Welcome = () => {
                     ))}
                 </View>
             </ScrollView>
-            <View style={styles.inputWrapper}>
-                <Input />
-            </View>
         </View>
     );
 }
@@ -112,12 +109,6 @@ const styles = StyleSheet.create({
         fontFamily: FONT_NAMES.LILITA_ONE,
         flexWrap: 'wrap'
     },
-    inputWrapper: {
-        position: 'absolute',
-        bottom: 40,
-        left: 0,
-        right: 0,
-        backgroundColor: 'transparent',
-    }
+
 });
 export default Welcome;

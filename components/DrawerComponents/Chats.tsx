@@ -1,22 +1,22 @@
 import { useChatContext } from '@/context/ChatContext';
-import { DrawerContentComponentProps, DrawerContentScrollView } from '@react-navigation/drawer';
-import { usePathname, useRouter } from 'expo-router';
+import { DrawerContentScrollView } from '@react-navigation/drawer';
 import { MessageCircle, Trash } from 'lucide-react-native';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-interface ChatsProps {
-    navigation: DrawerContentComponentProps['navigation'];
-}
-const Chats = ({ navigation }: ChatsProps) => {
+
+const Chats = () => {
     const { chats } = useChatContext();
-    const router = useRouter();
-    const pathname = usePathname();
-    const isNewChatActive = pathname === '/(drawer)' || pathname === '/';
-    const isChatActive = (chatId: string) => pathname === `/chats/${chatId}`;
+    const { chat, setChat } = useChatContext();
+    const isNewChatActive = chat == null;
+
+    // Fixed: Compare chat ID directly
+    const isChatActive = (chatId: string) => chat === chatId;
+
     const handleRemoveChat = (chatId: string, event: any) => {
         event.stopPropagation();
         console.log('Remove chat:', chatId);
     };
+
     return (
         <View style={styles.chatsSection}>
             <Text style={styles.chatsLabel}>Chats</Text>
@@ -31,7 +31,7 @@ const Chats = ({ navigation }: ChatsProps) => {
                             isNewChatActive && styles.activeChatItem
                         ]}
                         onPress={() => {
-                            router.replace('/(drawer)');
+                            setChat(null);
                         }}>
                         <View style={styles.chatItemContent}>
                             <MessageCircle
@@ -47,30 +47,28 @@ const Chats = ({ navigation }: ChatsProps) => {
                             </Text>
                         </View>
                     </TouchableOpacity>
-                    {chats.map((chat: any) => {
-                        const active = isChatActive(chat.id);
+                    {chats.map((chatItem: any) => {
+                        const active = isChatActive(chatItem.id);
                         return (
                             <TouchableOpacity
-                                key={chat.id}
+                                key={chatItem.id}
                                 style={[
                                     styles.chatItem,
                                     active && styles.activeChatItem
                                 ]}
                                 onPress={() => {
-                                    navigation.navigate('chats/[id]', {
-                                        id: chat.id
-                                    });
+                                    setChat(chatItem.id);
                                 }}>
                                 <View style={styles.chatItemContent}>
                                     <Text style={[
                                         styles.chatTitle,
                                         active && styles.activeChatTitle
                                     ]} numberOfLines={1}>
-                                        {chat.title}
+                                        {chatItem.title}
                                     </Text>
                                     <TouchableOpacity
                                         style={styles.removeButton}
-                                        onPress={(event) => handleRemoveChat(chat.id, event)}
+                                        onPress={(event) => handleRemoveChat(chatItem.id, event)}
                                         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                                     >
                                         <Trash
@@ -86,7 +84,8 @@ const Chats = ({ navigation }: ChatsProps) => {
             </DrawerContentScrollView>
         </View>
     );
-}
+};
+
 const styles = StyleSheet.create({
     chatsSection: {
         flex: 1,
@@ -137,4 +136,5 @@ const styles = StyleSheet.create({
         borderRadius: 4,
     },
 });
+
 export default Chats;

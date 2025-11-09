@@ -1,18 +1,18 @@
-import { ChatContextProps } from '@/global';
+import { Chat, ChatContextProps, Message } from '@/global';
 import { useUser } from '@clerk/clerk-expo';
 import axios from 'axios';
-import { useContext, createContext, ReactNode, useState, useEffect } from 'react';
-import { socket } from '@/utils/scoket';
+import { useContext, createContext, ReactNode, useState, useEffect, useCallback } from 'react';
 axios.defaults.withCredentials = true;
 const ChatContext = createContext<ChatContextProps | undefined>(undefined);
 export const ChatProvider = ({ children }: { children: ReactNode }) => {
     const { user } = useUser();
-    const [chats, setChats] = useState([]);
-    const [messages, setMessages] = useState([]);
+    const [chats, setChats] = useState<Chat[]>([]);
+    const [messages, setMessages] = useState<Message[]>([]);
     const [inputMessage, setInputMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [isFetchingChats, setIsFetchingChats] = useState(false);
     const [isFetchingMessages, setIsFetchingMessages] = useState(false);
+    const [chat, setChat] = useState<number | null>(null);
     const fetchChats = async () => {
         setIsFetchingChats(true);
         try {
@@ -29,7 +29,11 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
             fetchChats();
         }
     }, [user?.id]);
-    const fetchMessages = async (chat_id: number | null) => {
+    const fetchMessages = useCallback(async (chat_id: number | null) => {
+        if (!chat_id) {
+            setMessages([]);
+            return;
+        }
         setIsFetchingMessages(true);
         try {
             const response = await axios.get(`${process.env.EXPO_PUBLIC_SERVER_URL}/api/chat/messages/${chat_id}/${user?.id}`);
@@ -39,7 +43,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         } finally {
             setIsFetchingMessages(false);
         }
-    }
+    }, [user?.id]);
     const sendMessageToAi = async (chat_id: number | null) => {
 
     }
@@ -49,8 +53,8 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
             setChats,
             messages,
             setMessages,
-            setInputMessage,
             inputMessage,
+            setInputMessage,
             isLoading,
             setIsLoading,
             isFetchingChats,
@@ -58,7 +62,9 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
             isFetchingMessages,
             setIsFetchingMessages,
             sendMessageToAi,
-            fetchMessages
+            fetchMessages,
+            chat,
+            setChat
         }}>
             {children}
         </ChatContext.Provider>
