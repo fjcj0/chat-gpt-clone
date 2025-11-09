@@ -4,6 +4,7 @@ export interface Message {
     role: 'user' | 'assistant';
     chat_id: number;
     created_at: string;
+    image: string | null;
 }
 export interface Chat {
     id: number;
