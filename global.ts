@@ -11,4 +11,5 @@ export interface ChatContextProps {
     setIsFetchingChats: any,
     isFetchingMessages: boolean,
     setIsFetchingMessages: any,
+    sendMessageToAi: any;
 };

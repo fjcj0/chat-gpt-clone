@@ -2,6 +2,7 @@ import { ChatContextProps } from '@/global';
 import { useUser } from '@clerk/clerk-expo';
 import axios from 'axios';
 import { useContext, createContext, ReactNode, useState, useEffect } from 'react';
+import { socket } from '@/utils/scoket';
 axios.defaults.withCredentials = true;
 const ChatContext = createContext<ChatContextProps | undefined>(undefined);
 export const ChatProvider = ({ children }: { children: ReactNode }) => {
@@ -28,6 +29,9 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
             fetchChats();
         }
     }, [user?.id]);
+    const sendMessageToAi = async (chat_id: number | null) => {
+
+    }
     return (
         <ChatContext.Provider value={{
             chats,
@@ -41,7 +45,8 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
             isFetchingChats,
             setIsFetchingChats,
             isFetchingMessages,
-            setIsFetchingMessages
+            setIsFetchingMessages,
+            sendMessageToAi
         }}>
             {children}
         </ChatContext.Provider>
