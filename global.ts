@@ -28,4 +28,8 @@ export interface ChatContextProps {
     fetchMessages: (chat_id: number | null) => Promise<void>;
     chat: number | null;
     setChat: (chat: number | null) => void;
+    isDeletingChat: any,
+    setIsDeletingChat: any,
+    deleteChat: (chat_id: string) => Promise<void>;
+    fetchChats: any;
 }

@@ -9,7 +9,7 @@ import { KeyboardAvoidingView, StyleSheet, View, FlatList, Text, Image, Activity
 const logoAi = require('../../assets/icons/logo.png');
 export default function ChatScreen() {
     const { user } = useUser();
-    const { chat, messages, fetchMessages, isFetchingMessages, isLoading } = useChatContext();
+    const { chat, chats, messages, fetchMessages, isFetchingMessages, isLoading } = useChatContext();
     const flatListRef = useRef<FlatList>(null);
     useEffect(() => {
         if (chat !== null) {
@@ -80,9 +80,7 @@ export default function ChatScreen() {
         </View>
     );
     if (isFetchingMessages) {
-        return (
-            <Loader />
-        );
+        return <Loader />;
     }
     return (
         <KeyboardAvoidingView style={styles.keyboardAvoidingView} behavior="padding">
@@ -232,21 +230,5 @@ const styles = StyleSheet.create({
     loadingText: {
         color: '#D1D5DB',
         fontSize: 17,
-    },
-    fullScreenLoader: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#151517',
-    },
-    fullScreenLogo: {
-        width: 80,
-        height: 80,
-        marginBottom: 20,
-    },
-    fullScreenLoaderText: {
-        color: '#9CA3AF',
-        fontSize: 16,
-        marginTop: 16,
     },
 });

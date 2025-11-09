@@ -2,21 +2,19 @@ import { useChatContext } from '@/context/ChatContext';
 import { DrawerContentScrollView } from '@react-navigation/drawer';
 import { MessageCircle, Trash } from 'lucide-react-native';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-
+import { StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
 const Chats = () => {
     const { chats } = useChatContext();
-    const { chat, setChat } = useChatContext();
+    const { chat, setChat, deleteChat, isDeletingChat } = useChatContext();
     const isNewChatActive = chat == null;
-
-    // Fixed: Compare chat ID directly
-    const isChatActive = (chatId: string) => chat === chatId;
-
-    const handleRemoveChat = (chatId: string, event: any) => {
-        event.stopPropagation();
-        console.log('Remove chat:', chatId);
+    const isChatActive = (chatId: number | string | null) => {
+        if (chat === null || chatId === null) return false;
+        return chat.toString() === chatId.toString();
     };
-
+    const handleRemoveChat = async (chatId: string, event: any) => {
+        event.stopPropagation();
+        await deleteChat(chatId);
+    };
     return (
         <View style={styles.chatsSection}>
             <Text style={styles.chatsLabel}>Chats</Text>
@@ -49,6 +47,7 @@ const Chats = () => {
                     </TouchableOpacity>
                     {chats.map((chatItem: any) => {
                         const active = isChatActive(chatItem.id);
+                        const isDeleting = isDeletingChat.status && isDeletingChat.chat === chatItem.id.toString();
                         return (
                             <TouchableOpacity
                                 key={chatItem.id}
@@ -57,24 +56,35 @@ const Chats = () => {
                                     active && styles.activeChatItem
                                 ]}
                                 onPress={() => {
-                                    setChat(chatItem.id);
-                                }}>
+                                    setChat(Number(chatItem.id));
+                                }}
+                                disabled={isDeleting}
+                            >
                                 <View style={styles.chatItemContent}>
                                     <Text style={[
                                         styles.chatTitle,
-                                        active && styles.activeChatTitle
+                                        active && styles.activeChatTitle,
+                                        isDeleting && styles.deletingChatTitle
                                     ]} numberOfLines={1}>
                                         {chatItem.title}
                                     </Text>
                                     <TouchableOpacity
                                         style={styles.removeButton}
-                                        onPress={(event) => handleRemoveChat(chatItem.id, event)}
+                                        onPress={(event) => handleRemoveChat(chatItem.id.toString(), event)}
                                         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                                        disabled={isDeleting}
                                     >
-                                        <Trash
-                                            size={16}
-                                            color={active ? '#1B1B1C' : '#ADB2B8'}
-                                        />
+                                        {isDeleting ? (
+                                            <ActivityIndicator
+                                                size="small"
+                                                color={active ? '#1B1B1C' : '#ADB2B8'}
+                                            />
+                                        ) : (
+                                            <Trash
+                                                size={16}
+                                                color={active ? '#1B1B1C' : '#ADB2B8'}
+                                            />
+                                        )}
                                     </TouchableOpacity>
                                 </View>
                             </TouchableOpacity>
@@ -85,7 +95,6 @@ const Chats = () => {
         </View>
     );
 };
-
 const styles = StyleSheet.create({
     chatsSection: {
         flex: 1,
@@ -111,6 +120,7 @@ const styles = StyleSheet.create({
         padding: 12,
         borderRadius: 8,
         marginVertical: 4,
+        backgroundColor: 'transparent',
     },
     chatItemContent: {
         flexDirection: 'row',
@@ -131,10 +141,16 @@ const styles = StyleSheet.create({
     activeChatTitle: {
         color: '#1B1B1C',
     },
+    deletingChatTitle: {
+        opacity: 0.5,
+    },
     removeButton: {
         padding: 4,
         borderRadius: 4,
+        width: 24,
+        height: 24,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });
-
 export default Chats;

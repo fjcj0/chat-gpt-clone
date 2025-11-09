@@ -14,10 +14,78 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     const [isFetchingChats, setIsFetchingChats] = useState(false);
     const [isFetchingMessages, setIsFetchingMessages] = useState(false);
     const [chat, setChat] = useState<number | null>(null);
-    const [isDeletingChat, setIsDeletedChat] = useState({
+    const [isDeletingChat, setIsDeletingChat] = useState<{
+        chat: string | null;
+        status: boolean;
+    }>({
         chat: null,
         status: false,
     });
+    const fetchChats = async () => {
+        setIsFetchingChats(true);
+        try {
+            const response = await axios.get(`${process.env.EXPO_PUBLIC_SERVER_URL}/api/chat/${user?.id}`);
+            setChats(response.data.chats);
+        } catch (error) {
+            console.log(error instanceof Error ? error.message : error);
+        } finally {
+            setIsFetchingChats(false);
+        }
+    };
+    const deleteChat = async (chat_id: string) => {
+        setIsDeletingChat({
+            chat: chat_id,
+            status: true,
+        });
+        try {
+            await axios.delete(`${process.env.EXPO_PUBLIC_SERVER_URL}/api/chat/${chat_id}/${user?.id}`);
+            await fetchChats();
+            if (chat?.toString() === chat_id) {
+                setChat(null);
+                setMessages([]);
+            }
+        } catch (error) {
+            console.log(error instanceof Error ? error.message : error);
+        } finally {
+            setIsDeletingChat({
+                chat: null,
+                status: false
+            });
+        }
+    }
+    const fetchMessages = useCallback(async (chat_id: number | null) => {
+        if (!chat_id) {
+            setMessages([]);
+            return;
+        }
+        setIsFetchingMessages(true);
+        try {
+            const response = await axios.get(`${process.env.EXPO_PUBLIC_SERVER_URL}/api/chat/messages/${chat_id}/${user?.id}`);
+            const sortedMessages = response.data.messages.sort((a: Message, b: Message) =>
+                new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+            );
+            setMessages(sortedMessages);
+        } catch (error) {
+            console.log(error instanceof Error ? error.message : error);
+        } finally {
+            setIsFetchingMessages(false);
+        }
+    }, [user?.id]);
+    const sendMessageToAi = async (content: string, image?: string) => {
+        if (!user?.id) {
+            console.error('User must be logged in');
+            return;
+        }
+        setIsLoading(true);
+        const chatIdToSend = chat ? Number(chat) : null;
+        console.log('Sending message with chatId:', chatIdToSend, 'Type:', typeof chatIdToSend);
+        socket.emit('sendMessageToAi', {
+            chatId: chatIdToSend,
+            content: content,
+            clerkId: user.id,
+            image: image || null
+        });
+    };
     useEffect(() => {
         if (!user?.id) return;
         socket.on('receive', (data: { chat?: Chat; userMessage: Message }) => {
@@ -44,53 +112,11 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
             socket.off('error');
         };
     }, [user?.id]);
-    const fetchChats = async () => {
-        setIsFetchingChats(true);
-        try {
-            const response = await axios.get(`${process.env.EXPO_PUBLIC_SERVER_URL}/api/chat/${user?.id}`);
-            setChats(response.data.chats);
-        } catch (error) {
-            console.log(error instanceof Error ? error.message : error);
-        } finally {
-            setIsFetchingChats(false);
-        }
-    };
     useEffect(() => {
         if (user?.id) {
             fetchChats();
         }
     }, [user?.id]);
-    const fetchMessages = useCallback(async (chat_id: number | null) => {
-        if (!chat_id) {
-            setMessages([]);
-            return;
-        }
-        setIsFetchingMessages(true);
-        try {
-            const response = await axios.get(`${process.env.EXPO_PUBLIC_SERVER_URL}/api/chat/messages/${chat_id}/${user?.id}`);
-            const sortedMessages = response.data.messages.sort((a: Message, b: Message) =>
-                new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-            );
-            setMessages(sortedMessages);
-        } catch (error) {
-            console.log(error instanceof Error ? error.message : error);
-        } finally {
-            setIsFetchingMessages(false);
-        }
-    }, [user?.id]);
-    const sendMessageToAi = async (content: string, image?: string) => {
-        if (!user?.id) {
-            console.error('User must be logged in');
-            return;
-        }
-        setIsLoading(true);
-        socket.emit('sendMessageToAi', {
-            chatId: chat,
-            content: content,
-            clerkId: user.id,
-            image: image || null
-        });
-    };
     return (
         <ChatContext.Provider value={{
             chats,
@@ -108,7 +134,11 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
             sendMessageToAi,
             fetchMessages,
             chat,
-            setChat
+            setChat,
+            deleteChat,
+            setIsDeletingChat,
+            isDeletingChat,
+            fetchChats
         }}>
             {children}
         </ChatContext.Provider>
